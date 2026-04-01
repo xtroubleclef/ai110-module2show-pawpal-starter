@@ -2,7 +2,7 @@
 # Classes for pet care planning and scheduling
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from enum import Enum
 from datetime import datetime
 
@@ -148,10 +148,10 @@ class Schedule:
         self.owner = owner
         # If no tasks provided, retrieve all tasks from owner's pets
         self.tasks = tasks if tasks is not None else owner.get_all_tasks()
-        self.scheduled_tasks: List[tuple[Task, int]] = []  # List of (task, start_time_in_minutes)
+        self.scheduled_tasks: List[Tuple[Task, int]] = []  # List of (task, start_time_in_minutes)
         self.total_time_used = 0
     
-    def build_schedule(self) -> List[tuple[Task, int]]:
+    def build_schedule(self) -> List[Tuple[Task, int]]:
         """Build and return optimized task schedule based on priority and time constraints."""
         if not self.tasks:
             return []
@@ -236,8 +236,8 @@ class Schedule:
     
     def get_unscheduled_tasks(self) -> List[Task]:
         """Return tasks that could not be fit into the schedule."""
-        scheduled_task_set = {task for task, _ in self.scheduled_tasks}
-        return [task for task in self.tasks if task not in scheduled_task_set]
+        scheduled_task_objects = [task for task, _ in self.scheduled_tasks]
+        return [task for task in self.tasks if task not in scheduled_task_objects]
     
     def __str__(self) -> str:
         """Return string representation of schedule."""
