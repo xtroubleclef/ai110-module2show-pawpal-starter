@@ -1,6 +1,19 @@
 # PawPal+ (Module 2 Project)
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+**PawPal+** is a Streamlit app that helps a pet owner plan care tasks for their pet
+
+## Table of Contents
+- [Scenario](#scenario)
+- [What You Will Build](#what-you-will-build)
+- [📸 Demo](#-demo)
+- [Smarter Scheduling (Phases 4-4.5)](#smarter-scheduling-phases-4-45)
+- [Getting Started](#getting-started)
+- [Testing PawPal+](#testing-pawpal)
+- [Complete Feature List](#complete-feature-list)
+- [System Architecture](#system-architecture)
+- [Performance Characteristics](#performance-characteristics)
+- [Design Decisions & Tradeoffs](#design-decisions--tradeoffs)
+- [Future Enhancements (Phase 5+)](#future-enhancements-phase-5)
 
 ## Scenario
 
@@ -24,8 +37,6 @@ Your final app should:
 
 ## 📸 Demo
 
-**Live Screenshots Coming Soon!**
-
 Once you run `streamlit run app.py`, you'll see:
 - Owner creation form with time availability slider
 - Pet management interface showing all pets
@@ -35,13 +46,7 @@ Once you run `streamlit run app.py`, you'll see:
 - Time analysis breakdown (per-pet, per-priority)
 - Interactive filtering and sorting controls
 
-To add a screenshot:
-1. Run: `streamlit run app.py`
-2. Create an owner, add 2-3 pets, add 5-10 tasks
-3. Click "Build Schedule" to see the algorithms in action
-4. Take a screenshot of the results
-5. Upload to course images as `/course_images/ai110/Screenshotpawpal.png`
-6. Embed using: `<a href="/course_images/ai110/Screenshotpawpal.png" target="_blank"><img src='/course_images/ai110/Screenshotpawpal.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>`
+![Demo Screenshot](Screenshotpawpal.png)
 
 ## Smarter Scheduling (Phases 4-4.5)
 
@@ -136,15 +141,15 @@ python3 -m pytest -v
 ```
 
 ### Test Coverage
-
-The test suite verifies:
+<details>
+<summary>The test suite verifies:</summary>
 
 **Core Classes (18 tests)**
 - ✅ Task creation, validation, and recurring task automation
 - ✅ Pet management and task organization
 - ✅ Owner multi-pet support and task aggregation
 - ✅ Schedule building with greedy algorithm and feasibility checking
-
+    
 **Sorting Algorithms (3 tests)**
 - ✅ Priority-based sorting (HIGH → MEDIUM → LOW)
 - ✅ Duration-based sorting (shortest first)
@@ -230,29 +235,37 @@ For detailed information about what was tested and why, see:
 - **TESTING_VERIFICATION_REPORT.md** - Detailed test results and analysis
 - **TESTING_EDGE_CASES.md** - Edge cases and design decisions
 - **HOW_TO_RUN_TESTS.md** - Complete testing guide
+</details>
 
 ## Complete Feature List
 
+
 ### Core Features
 
-**Task Management**
+<details>
+<summary>Task Management</summary>
 - ✅ Create tasks with title, duration (minutes), priority level, and recurrence frequency
 - ✅ Mark tasks complete with automatic next-instance creation for recurring tasks
 - ✅ Filter tasks by pet, priority, status, and recurrence pattern
 - ✅ View all tasks organized by pet or global view
 - ✅ Edit task properties (except ID and creation date)
+</details>
 
-**Pet Management**
+<details>
+<summary>Pet Management</summary>
 - ✅ Add multiple pets per owner with species, age, and breed
 - ✅ View pet details and associated tasks
 - ✅ Organize tasks by pet for focused care planning
 - ✅ Get care requirements summary per pet
+</details>
 
-**Owner Profiles**
+<details>
+<summary>Owner Profiles</summary>
 - ✅ Set owner name and available daily time (in minutes)
 - ✅ Adjust availability to reflect real-world constraints
 - ✅ See holistic view across all pets
 - ✅ Get time allocation and utilization metrics
+</details>
 
 ### Scheduling Algorithms
 
@@ -478,38 +491,46 @@ Notes:
 
 ## Design Decisions & Tradeoffs
 
-### Decision 1: Greedy vs. Optimal Scheduling
+<details>
+<summary>Decision 1: Greedy vs. Optimal Scheduling</summary>
 - **Chosen:** Greedy algorithm (O(k log k))
 - **Rationale:** Simplicity, fast execution, good-enough results for most users
 - **Alternative:** NP-hard optimal packing algorithms would be slower
 - **Limitation:** Might not achieve 100% time utilization
 - **Phase 5 Plan:** Offer "aggressive packing" mode if needed
+</details>
 
-### Decision 2: Exact Overlap vs. Buffer Time
+<details>
+<summary>Decision 2: Exact Overlap vs. Buffer Time</summary>
 - **Chosen:** Exact interval overlap detection
 - **Rationale:** Simple, fast, let user decide spacing
 - **Formula:** `NOT (end1 <= time2 OR start1 >= end2)`
 - **Alternative:** Add 15-minute buffer between all tasks
 - **Limitation:** Schedules might feel tight
 - **Phase 5 Plan:** Add "Strict Mode" with configurable buffer
-
-### Decision 3: In-Memory vs. Database Storage
+</details>
+    
+<details>
+<summary>Decision 3: In-Memory vs. Database Storage</summary>
 - **Chosen:** In-memory lists with Streamlit session_state
 - **Rationale:** Fast, simple, perfect for daily planning
 - **Alternative:** SQLite or PostgreSQL for persistence
 - **Limitation:** Data lost on page refresh
 - **Phase 5 Plan:** Add SQLite for multi-session continuity
+</details>
 
-### Decision 4: Single-Day vs. Multi-Day Planning
+<details>
+<summary>Decision 4: Single-Day vs. Multi-Day Planning</summary>
 - **Chosen:** Single daily schedule (24-hour window)
 - **Rationale:** Focus on one day at a time, easier planning
 - **Alternative:** Weekly/monthly planning view
 - **Limitation:** Can't see conflicts across days
 - **Phase 5 Plan:** Add 7-day and 30-day views
+</details>
 
 See `reflection.md` for detailed discussion of design choices and AI collaboration process.
 
-## File Structure
+<!-- ## File Structure
 
 ```
 pawpal_system.py      (779 lines) - Core logic and algorithms
@@ -527,6 +548,7 @@ TESTING_VERIFICATION_REPORT.md - Test results
 TESTING_EDGE_CASES.md - Edge case documentation
 HOW_TO_RUN_TESTS.md   - Testing guide
 ```
+-->
 
 ## Future Enhancements (Phase 5+)
 
