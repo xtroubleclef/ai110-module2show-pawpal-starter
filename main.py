@@ -1,168 +1,210 @@
 """
-PawPal+ Demo Script
-Testing the logic layer with sample Owner, Pets, Tasks, and Schedule
+PawPal+ Demo Script - Phase 4.5: Recurring Tasks & Conflict Detection
+Testing the logic layer with automated recurring tasks and conflict detection
 """
 
 from pawpal_system import Owner, Pet, Task, Schedule, Priority
+from datetime import datetime, timedelta
 
 
-def main():
-    """Main demo function."""
-    print("=" * 60)
-    print("PawPal+ - Pet Care Planning System Demo")
-    print("=" * 60)
+def demo_recurring_tasks():
+    """Demonstrate automatic recurring task creation."""
+    print("=" * 70)
+    print("DEMO 1: AUTOMATED RECURRING TASKS")
+    print("=" * 70)
     print()
     
-    # Create an Owner
-    print("Creating Owner...")
-    owner = Owner(
-        name="Jordan",
-        contact_info="jordan@email.com",
-        availability_minutes=480,  # 8 hours available per day
-        preferences="Prefers morning walks"
-    )
-    print("Owner created: " + str(owner))
-    print("Available time: " + str(owner.get_available_time()) + " minutes")
-    print()
+    # Create owner and pet
+    owner = Owner(name="Jordan", availability_minutes=480)
+    dog = Pet(name="Mochi", species="dog", age=3)
+    owner.add_pet(dog)
     
-    # Create Pet 1: Dog (Mochi)
-    print("Creating Pet 1: Dog...")
-    dog = Pet(
-        name="Mochi",
-        species="dog",
-        age=3,
-        preferences="Loves fetch"
-    )
-    
-    # Add tasks for the dog
-    dog_task1 = Task(
+    # Create daily task
+    daily_walk = Task(
         title="Morning walk",
         duration_minutes=30,
         priority=Priority.HIGH,
-        description="Brisk walk around the park",
         frequency="daily"
     )
-    dog_task2 = Task(
-        title="Feeding",
-        duration_minutes=10,
-        priority=Priority.HIGH,
-        description="Breakfast and water",
-        frequency="daily"
-    )
-    dog_task3 = Task(
-        title="Playtime with toys",
-        duration_minutes=20,
-        priority=Priority.MEDIUM,
-        description="Interactive play session",
-        frequency="daily"
-    )
+    dog.add_task(daily_walk)
     
-    dog.add_task(dog_task1)
-    dog.add_task(dog_task2)
-    dog.add_task(dog_task3)
-    
-    print("Pet created: " + str(dog))
-    print("Tasks (" + str(len(dog.get_all_tasks())) + "): " + ", ".join([t.title for t in dog.get_all_tasks()]))
+    print(f"Created task: {daily_walk}")
+    print(f"Due date: {daily_walk.due_date.strftime('%Y-%m-%d')}")
+    print(f"Frequency: {daily_walk.frequency}")
     print()
     
-    # Create Pet 2: Cat (Whiskers)
-    print("Creating Pet 2: Cat...")
-    cat = Pet(
-        name="Whiskers",
-        species="cat",
-        age=5,
-        preferences="Indoor only"
-    )
+    # Mark task as completed - should auto-create next occurrence
+    print("Marking task as complete...")
+    next_task = dog.mark_task_complete(daily_walk)
     
-    # Add tasks for the cat
-    cat_task1 = Task(
-        title="Feeding",
-        duration_minutes=10,
-        priority=Priority.HIGH,
-        description="Wet food and water",
-        frequency="daily"
-    )
-    cat_task2 = Task(
-        title="Litter box cleaning",
-        duration_minutes=15,
-        priority=Priority.HIGH,
-        description="Clean and refill litter box",
-        frequency="daily"
-    )
-    cat_task3 = Task(
-        title="Grooming",
-        duration_minutes=20,
-        priority=Priority.MEDIUM,
-        description="Brush coat and check nails",
-        frequency="weekly"
-    )
-    
-    cat.add_task(cat_task1)
-    cat.add_task(cat_task2)
-    cat.add_task(cat_task3)
-    
-    print("Pet created: " + str(cat))
-    print("Tasks (" + str(len(cat.get_all_tasks())) + "): " + ", ".join([t.title for t in cat.get_all_tasks()]))
-    print()
-    
-    # Add pets to owner
-    owner.add_pet(dog)
-    owner.add_pet(cat)
-    print("Pets added to owner")
-    print(owner.name + " now has " + str(len(owner.get_all_pets())) + " pet(s)")
-    print()
-    
-    # Create and build schedule
-    print("=" * 60)
-    print("Building Schedule...")
-    print("=" * 60)
-    print()
-    
-    schedule = Schedule(owner)
-    
-    print("Schedule Analysis:")
-    print("  Total tasks to schedule: " + str(len(schedule.tasks)))
-    print("  Available time: " + str(owner.get_available_time()) + " minutes")
-    print("  Is feasible (all urgent tasks fit): " + str(schedule.is_feasible()))
-    print()
-    
-    # Build the schedule
-    scheduled = schedule.build_schedule()
-    print("Schedule built with " + str(len(scheduled)) + " tasks")
-    print()
-    
-    # Display the detailed schedule explanation
-    print("=" * 60)
-    print("TODAY'S SCHEDULE")
-    print("=" * 60)
-    print()
-    print(schedule.get_schedule_explanation())
-    
-    # Show any unscheduled tasks
-    unscheduled = schedule.get_unscheduled_tasks()
-    if unscheduled:
-        print("Could not schedule the following tasks (insufficient time):")
-        for task in unscheduled:
-            print("  - " + task.title + " (" + str(task.duration_minutes) + " min, " + task.priority.name + " priority)")
+    if next_task:
+        print(f"✓ Next occurrence auto-created!")
+        print(f"Original: {daily_walk.title} - due {daily_walk.due_date.strftime('%Y-%m-%d')} (COMPLETED)")
+        print(f"Next:     {next_task.title} - due {next_task.due_date.strftime('%Y-%m-%d')} (TODO)")
         print()
+        
+        # Verify both tasks are in the pet's task list
+        all_tasks = dog.get_all_tasks()
+        print(f"Total tasks on {dog.name}: {len(all_tasks)}")
+        for task in all_tasks:
+            print(f"  - {task}")
     else:
-        print("All tasks successfully scheduled!")
-        print()
+        print("✗ Failed to create next occurrence")
     
-    # Summary
-    print("=" * 60)
-    print("SUMMARY")
-    print("=" * 60)
-    print("Owner: " + owner.name)
-    print("Pets: " + ", ".join([p.name for p in owner.get_all_pets()]))
-    print("Total tasks: " + str(len(schedule.tasks)))
-    print("Scheduled tasks: " + str(len(schedule.scheduled_tasks)))
-    print("Unscheduled tasks: " + str(len(unscheduled)))
-    utilization = (schedule.total_time_used/owner.get_available_time()*100)
-    print("Time utilization: " + str(schedule.total_time_used) + "/" + str(owner.get_available_time()) + " minutes (" + str(round(utilization, 1)) + "%)")
     print()
-    print("Demo complete!")
+
+
+def demo_conflict_detection():
+    """Demonstrate conflict detection with warning messages."""
+    print("=" * 70)
+    print("DEMO 2: CONFLICT DETECTION WITH WARNINGS")
+    print("=" * 70)
+    print()
+    
+    # Create owner with one pet
+    owner = Owner(name="Alex", availability_minutes=480)
+    dog = Pet(name="Max", species="dog")
+    owner.add_pet(dog)
+    
+    # Create overlapping tasks (same time)
+    morning_walk = Task(
+        title="Morning walk",
+        duration_minutes=30,
+        priority=Priority.HIGH
+    )
+    breakfast = Task(
+        title="Breakfast prep",
+        duration_minutes=15,
+        priority=Priority.HIGH
+    )
+    
+    dog.add_task(morning_walk)
+    dog.add_task(breakfast)
+    
+    # Create schedule with manual overlap
+    schedule = Schedule(owner)
+    schedule.scheduled_tasks = [
+        (morning_walk, 0),      # 00:00 - 00:30
+        (breakfast, 15),        # 00:15 - 00:30 (OVERLAPS!)
+    ]
+    
+    print("Scheduled tasks (with conflict):")
+    for task, time in schedule.scheduled_tasks:
+        end_time = time + task.duration_minutes
+        start_hhmm = f"{time // 60:02d}:{time % 60:02d}"
+        end_hhmm = f"{end_time // 60:02d}:{end_time % 60:02d}"
+        print(f"  {task.title}: {start_hhmm} - {end_hhmm}")
+    print()
+    
+    # Get conflict warnings
+    print("Checking for conflicts...")
+    warnings = schedule.get_conflict_warnings()
+    
+    if len(warnings) == 1 and "valid" in warnings[0].lower():
+        print("✓ No conflicts found")
+    else:
+        for warning in warnings:
+            print(f"⚠️  {warning}")
+    
+    print()
+
+
+def demo_conflict_detection_multiple_pets():
+    """Demonstrate cross-pet conflict detection."""
+    print("=" * 70)
+    print("DEMO 3: CROSS-PET CONFLICT DETECTION")
+    print("=" * 70)
+    print()
+    
+    # Create owner with two pets
+    owner = Owner(name="Casey", availability_minutes=480)
+    
+    dog = Pet(name="Rex", species="dog")
+    dog_walk = Task("Dog walk", 30, Priority.HIGH)
+    dog.add_task(dog_walk)
+    owner.add_pet(dog)
+    
+    cat = Pet(name="Whiskers", species="cat")
+    cat_feed = Task("Cat feeding", 20, Priority.HIGH)
+    cat.add_task(cat_feed)
+    owner.add_pet(cat)
+    
+    # Create schedule with cross-pet conflict
+    schedule = Schedule(owner)
+    schedule.scheduled_tasks = [
+        (dog_walk, 60),    # 01:00 - 01:30
+        (cat_feed, 70),    # 01:10 - 01:30 (OVERLAPS with dog walk!)
+    ]
+    
+    print("Scheduled tasks (with cross-pet conflict):")
+    for task, time in schedule.scheduled_tasks:
+        end_time = time + task.duration_minutes
+        start_hhmm = f"{time // 60:02d}:{time % 60:02d}"
+        end_hhmm = f"{end_time // 60:02d}:{end_time % 60:02d}"
+        print(f"  {task.title}: {start_hhmm} - {end_hhmm}")
+    print()
+    
+    # Get conflict warnings
+    print("Checking for conflicts...")
+    warnings = schedule.get_conflict_warnings()
+    
+    for warning in warnings:
+        if "valid" not in warning.lower():
+            print(f"⚠️  {warning}")
+        else:
+            print(f"✓ {warning}")
+    
+    print()
+
+
+def demo_no_conflicts():
+    """Demonstrate a clean schedule with no conflicts."""
+    print("=" * 70)
+    print("DEMO 4: CLEAN SCHEDULE (NO CONFLICTS)")
+    print("=" * 70)
+    print()
+    
+    owner = Owner(name="Sam", availability_minutes=480)
+    
+    dog = Pet(name="Buddy", species="dog")
+    dog_walk = Task("Dog walk", 30, Priority.HIGH)
+    dog_feed = Task("Dog food", 10, Priority.HIGH)
+    dog.add_task(dog_walk)
+    dog.add_task(dog_feed)
+    owner.add_pet(dog)
+    
+    cat = Pet(name="Mittens", species="cat")
+    cat_feed = Task("Cat food", 10, Priority.HIGH)
+    cat.add_task(cat_feed)
+    owner.add_pet(cat)
+    
+    # Build a proper schedule
+    schedule = Schedule(owner)
+    schedule.build_schedule()
+    
+    print("Scheduled tasks (clean schedule):")
+    for task, time in schedule.scheduled_tasks:
+        end_time = time + task.duration_minutes
+        start_hhmm = f"{time // 60:02d}:{time % 60:02d}"
+        end_hhmm = f"{end_time // 60:02d}:{end_time % 60:02d}"
+        print(f"  {task.title}: {start_hhmm} - {end_hhmm}")
+    print()
+    
+    # Check for conflicts
+    print("Checking for conflicts...")
+    warnings = schedule.get_conflict_warnings()
+    
+    for warning in warnings:
+        print(f"✓ {warning}")
+    
+    print()
 
 
 if __name__ == "__main__":
-    main()
+    demo_recurring_tasks()
+    demo_conflict_detection()
+    demo_conflict_detection_multiple_pets()
+    demo_no_conflicts()
+    print("=" * 70)
+    print("All demos complete!")
+    print("=" * 70)
